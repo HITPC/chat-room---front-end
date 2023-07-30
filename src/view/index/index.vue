@@ -297,7 +297,7 @@ export default {
         case 4: {
           document.documentElement.style.setProperty('--menu-container-bgc', 'rgba(0, 0, 102, .2)');
           document.documentElement.style.setProperty('--button-bgc', 'rgb(24,43,73)');
-          document.documentElement.style.setProperty('--text-color', 'rgb(236,232,125)');
+          document.documentElement.style.setProperty('--text-color', 'rgba(211,206,110)');
           document.documentElement.style.setProperty('--border-color', 'rgb(24,43,73)');
           document.documentElement.style.setProperty('--text-border-color', 'rgb(255,255,255)');
           this.$refs["main"].style.backgroundImage = `url(${this.themeList[index-1].url})`;
@@ -306,7 +306,7 @@ export default {
         case 5: {
           document.documentElement.style.setProperty('--menu-container-bgc', 'rgba(0, 0, 102, .2)');
           document.documentElement.style.setProperty('--button-bgc', 'rgb(240,196,219)');
-          document.documentElement.style.setProperty('--text-color', 'rgb(253,236,246)');
+          document.documentElement.style.setProperty('--text-color', '#fff');
           document.documentElement.style.setProperty('--border-color', 'rgb(240,196,219)');
           document.documentElement.style.setProperty('--text-border-color', 'rgb(0,0,0)');
           this.$refs["main"].style.backgroundImage = `url(${this.themeList[index-1].url})`;
@@ -323,9 +323,9 @@ export default {
         }
         case 7: {
           document.documentElement.style.setProperty('--menu-container-bgc', 'rgba(149,165,237, .2)');
-          document.documentElement.style.setProperty('--button-bgc', 'rgb(135,147,90)');
-          document.documentElement.style.setProperty('--text-color', 'rgb(169,217,155)');
-          document.documentElement.style.setProperty('--border-color', 'rgb(135,147,90)');
+          document.documentElement.style.setProperty('--button-bgc', 'rgb(63,71,84)');
+          document.documentElement.style.setProperty('--text-color', 'rgb(136,197,131)');
+          document.documentElement.style.setProperty('--border-color', 'rgb(63,71,84)');
           document.documentElement.style.setProperty('--text-border-color', 'rgb(0,0,0)');
           this.$refs["main"].style.backgroundImage = `url(${this.themeList[index-1].url})`;
           break;
@@ -741,7 +741,7 @@ export default {
     padding-left: 5%;
     padding-right: 5%;
     box-sizing: border-box;
-    font-family: '华文仿宋';
+    font-family: '黑体';
     font-weight: 600;
   }
 
@@ -785,7 +785,7 @@ export default {
     border: none;
     background-color: var(--text-color);
     color: var(--button-bgc);
-    font-family: '华文仿宋';
+    font-family: '黑体';
     padding: 8px;
     font-size: 20px;
     overflow: auto;

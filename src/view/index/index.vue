@@ -461,13 +461,14 @@ export default {
   }
 
   .menu-container{
-    position: absolute;
+    position: fixed;
     top: 0;
     left: -20%;
     height: 100%;
     width: 20%;
     transition: all 1s;
     background-color: var(--menu-container-bgc);
+    z-index: 2;
   }
 
   .menu-show{

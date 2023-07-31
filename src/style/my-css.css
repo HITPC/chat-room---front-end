@@ -384,3 +384,24 @@
     transform: translateY(0);
   }
 }
+
+@keyframes width-widder {
+  0%{
+    width: 60%;
+  }
+  50%{
+    width: 70%;
+  }
+  100%{
+    width: 60%;
+  }
+}
+
+@keyframes rorate {
+  0%{
+    transform: rotate(0);
+  }
+  100%{
+    transform: rotate(360deg);
+  }
+}

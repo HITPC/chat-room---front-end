@@ -19,14 +19,17 @@
             <el-tooltip
               class="box-item"
               effect="light"
-              content="VIP用户专属标识。"
+              content="(尊享服务专属标识) 您的尊享服务已开通。"
               placement="right"
             >
-              <el-icon color="gold" v-if="userVip"><IceCream /></el-icon>
+              <el-icon color="gold" v-if="userVip" size="18"><StarFilled /></el-icon>
             </el-tooltip>
           </span>
-          <button>
+          <button @click="toMeCenter">
             个人中心
+          </button>
+          <button @click="toManage" v-if="userType">
+            管理网站
           </button>
           <button @click="unLogin">
             退出登录
@@ -48,7 +51,7 @@
               <p>{{ item.name }}</p>
           </li>
         <div class="theme-btn-container">
-          <button class="theme-btn" @click="confirmTheme">确定</button>
+          <button class="theme-btn" @click="confirmTheme">保存</button>
           <button class="theme-btn" @click="closeTheme">关闭</button>
         </div>
       </div>
@@ -57,7 +60,7 @@
         <span :style="themeList[themeNow-1].needOutline ? 'text-shadow: 0 1px var(--text-border-color), 1px 0 var(--text-border-color), -1px 0 var(--text-border-color), 0 -1px var(--text-border-color);' : ''">{{ themeList[themeNow-1].text }}</span>
       </div>
     </div>
-    <el-icon class="row-down" @click="scrollDown()"><ArrowDownBold /></el-icon>
+    <el-icon class="row-down" @click="scrollDown"><ArrowDownBold /></el-icon>
   </div>
   <div class="index-content-container" ref="content-blow">
     <div class="box" ref="message-box">
@@ -71,7 +74,7 @@
       </div>
       <div class="send-message">
         <textarea v-model="messageText" cols="50" rows="4" placeholder="说点什么？使用win+.组合键可以打开表情。"></textarea>
-        <button>发送</button>
+        <button>留言</button>
       </div>
     </div>
     <div class="line" ref="line"></div>
@@ -81,7 +84,7 @@
         <div class="room-item" v-for="(item, index) in roomList" :key="index">
           <span class="chat-name">{{ item.name }}</span>
           <span class="chat-people">目前人数：{{ item.peopleNow }}/{{ item.peopleMax }}</span>
-          <button class="chat-join">加入</button>
+          <button class="chat-join" @click="joinIn(item.id)">加入</button>
         </div>
       </div>
       <button class="chat-create-btn">创建房间</button>
@@ -91,19 +94,22 @@
 
 <script>
 import "@/style/my-css.css";
+import setCssVarible from "../../untils/setCSS";
+import { ElMessage } from 'element-plus';
 
 export default {
   name: 'IndexPage',
   props: {},
   data () {
     return {
-      // 需要一个拿用户信息的接口？vuex的信息能不能长期保存？
+      // 需要一个拿用户信息的接口 正确的！就用接口存着信息，然后通过cookie里面的内容解析出来id放到vuex里（这个在mounted这里做）不要用localstorage!  (记得后面个人中心 和 聊天室在对上接口之后也要改掉这里！)
       userName: localStorage.getItem("userName"),
       userId: localStorage.getItem("userId"),
       userTheme: Number.parseInt(localStorage.getItem("userTheme")), // 用户数据库里存的主题
       userVip: localStorage.getItem("userVIP") === "1",
+      userType: localStorage.getItem("userType") === "admin",
       isShowChangeTheme: false,
-      themeNow: this.$store.state.userTheme, // 当前选中的主题
+      themeNow: Number.parseInt(localStorage.getItem("userTheme")),// 当前选中的主题
       themeList: [
         {
           id: 1,
@@ -158,7 +164,7 @@ export default {
           name: "遥指星火",
           url: require("./media/7.jpg"),
           isSelected: false,
-          text: "稻浪翻涌向天边，繁星点点落人间",
+          text: "稻浪涌天边，繁星点点雨",
           needOutline: true
         },
         {
@@ -174,8 +180,8 @@ export default {
           name: "松山晚曦",
           url: require("./media/9.jpg"),
           isSelected: false,
-          text: "落日照晚曦，倦鸟归林低",
-          needOutline: false
+          text: "缓瀑映晚曦，倦鸟归林低",
+          needOutline: true
         },
       ],
       isShowBlack: false,
@@ -198,31 +204,37 @@ export default {
       ],
       roomList: [
         {
+          id: 0,
           name: "asasd",
           peopleNow: 2,
           peopleMax: 5,
         },
         {
+          id: 1,
           name: "asasd",
           peopleNow: 2,
           peopleMax: 5,
         },
         {
+          id: 2,
           name: "asasd",
           peopleNow: 2,
           peopleMax: 5,
         },
         {
+          id: 3,
           name: "asasd",
           peopleNow: 2,
           peopleMax: 5,
         },
         {
+          id: 4,
           name: "asasd",
           peopleNow: 2,
           peopleMax: 5,
         },
         {
+          id: 5,
           name: "asasd",
           peopleNow: 2,
           peopleMax: 5,
@@ -234,7 +246,13 @@ export default {
   },
   methods:{
     unLogin(){ // 退出登录
+      // 仅为了开发使用
       localStorage.removeItem("token");
+      localStorage.removeItem("userName");
+      localStorage.removeItem("userId");
+      localStorage.removeItem("userTheme");
+      localStorage.removeItem("userVIP");
+      localStorage.removeItem("userType");
       this.$router.push("/login");
     },
     showMenu(){
@@ -258,105 +276,24 @@ export default {
         this.$refs["menu-content"].style.opacity = 0;
       }, 500);
     },
-    changeTheme(){
+    changeTheme(){// 打开选取主题页面
       this.isShowChangeTheme = true;
     },
-    closeTheme(){
+    closeTheme(){ // 关闭选取主题页面
       this.isShowChangeTheme = false;
-    },
-    setCssVarible(index){
-      this.themeNow = index;
-      switch(index){
-        case 1:{
-          document.documentElement.style.setProperty('--menu-container-bgc', 'rgba(0, 0, 0, .5)');
-          document.documentElement.style.setProperty('--button-bgc', 'rgb(66,75,70)');
-          document.documentElement.style.setProperty('--text-color', 'rgb(239,232,215)');
-          document.documentElement.style.setProperty('--border-color', 'rgb(66,75,70)');
-          document.documentElement.style.setProperty('--text-border-color', 'rgb(255,255,255)');
-          this.$refs["main"].style.backgroundImage = `url(${this.themeList[index-1].url})`;
-          break;
-        }
-        case 2: {
-          document.documentElement.style.setProperty('--menu-container-bgc', 'rgba(255, 255, 255, .3)');
-          document.documentElement.style.setProperty('--button-bgc', 'rgb(240,228,234)');
-          document.documentElement.style.setProperty('--text-color', 'rgb(93,146,196)');
-          document.documentElement.style.setProperty('--border-color', 'rgb(240,228,234)');
-          document.documentElement.style.setProperty('--text-border-color', 'rgb(255,255,255)');
-          this.$refs["main"].style.backgroundImage = `url(${this.themeList[index-1].url})`;
-          break;
-        }
-        case 3: {
-          document.documentElement.style.setProperty('--menu-container-bgc', 'rgba(0, 0, 0, .5)');
-          document.documentElement.style.setProperty('--button-bgc', 'rgb(110,73,89)');
-          document.documentElement.style.setProperty('--text-color', 'rgb(247,187,184)');
-          document.documentElement.style.setProperty('--border-color', 'rgb(110,73,89)');
-          document.documentElement.style.setProperty('--text-border-color', 'rgb(255,255,255)');
-          this.$refs["main"].style.backgroundImage = `url(${this.themeList[index-1].url})`;
-          break;
-        }
-        case 4: {
-          document.documentElement.style.setProperty('--menu-container-bgc', 'rgba(0, 0, 102, .2)');
-          document.documentElement.style.setProperty('--button-bgc', 'rgb(24,43,73)');
-          document.documentElement.style.setProperty('--text-color', 'rgba(211,206,110)');
-          document.documentElement.style.setProperty('--border-color', 'rgb(24,43,73)');
-          document.documentElement.style.setProperty('--text-border-color', 'rgb(255,255,255)');
-          this.$refs["main"].style.backgroundImage = `url(${this.themeList[index-1].url})`;
-          break;
-        }
-        case 5: {
-          document.documentElement.style.setProperty('--menu-container-bgc', 'rgba(0, 0, 102, .2)');
-          document.documentElement.style.setProperty('--button-bgc', 'rgb(240,196,219)');
-          document.documentElement.style.setProperty('--text-color', '#fff');
-          document.documentElement.style.setProperty('--border-color', 'rgb(240,196,219)');
-          document.documentElement.style.setProperty('--text-border-color', 'rgb(0,0,0)');
-          this.$refs["main"].style.backgroundImage = `url(${this.themeList[index-1].url})`;
-          break;
-        }
-        case 6: {
-          document.documentElement.style.setProperty('--menu-container-bgc', 'rgba(0, 0, 0, .5)');
-          document.documentElement.style.setProperty('--button-bgc', 'rgb(57,55,69)');
-          document.documentElement.style.setProperty('--text-color', 'rgb(155,213,207)');
-          document.documentElement.style.setProperty('--border-color', 'rgb(57,55,69)');
-          document.documentElement.style.setProperty('--text-border-color', 'rgb(255,255,255)');
-          this.$refs["main"].style.backgroundImage = `url(${this.themeList[index-1].url})`;
-          break;
-        }
-        case 7: {
-          document.documentElement.style.setProperty('--menu-container-bgc', 'rgba(149,165,237, .2)');
-          document.documentElement.style.setProperty('--button-bgc', 'rgb(63,71,84)');
-          document.documentElement.style.setProperty('--text-color', 'rgb(136,197,131)');
-          document.documentElement.style.setProperty('--border-color', 'rgb(63,71,84)');
-          document.documentElement.style.setProperty('--text-border-color', 'rgb(0,0,0)');
-          this.$refs["main"].style.backgroundImage = `url(${this.themeList[index-1].url})`;
-          break;
-        }
-        case 8: {
-          document.documentElement.style.setProperty('--menu-container-bgc', 'rgba(255, 255, 255, .4)');
-          document.documentElement.style.setProperty('--button-bgc', 'rgb(255,255,255)');
-          document.documentElement.style.setProperty('--text-color', 'rgb(194,93,69)');
-          document.documentElement.style.setProperty('--border-color', 'rgb(255,255,255)');
-          document.documentElement.style.setProperty('--text-border-color', 'rgb(255,255,255)');
-          this.$refs["main"].style.backgroundImage = `url(${this.themeList[index-1].url})`;
-          break;
-        }
-        case 9: {
-          document.documentElement.style.setProperty('--menu-container-bgc', 'rgba(255, 255, 255, .3)');
-          document.documentElement.style.setProperty('--button-bgc', 'rgb(34,96,130)');
-          document.documentElement.style.setProperty('--text-color', 'rgb(3,20,44)');
-          document.documentElement.style.setProperty('--border-color', 'rgb(34,96,130)');
-          this.$refs["main"].style.backgroundImage = `url(${this.themeList[index-1].url})`;
-          break;
-        }
-      }
+      ElMessage.warning("已取消保存。");
     },
     setTheme(item){
       // 根据主题设置颜色 
       this.themeList.forEach(item=>item.isSelected = false);
       this.themeList[item.id - 1].isSelected = true;
-      this.setCssVarible(item.id);
+      setCssVarible(item.id, this);
+      this.themeNow = item.id;
     },
     confirmTheme(){
-      // 主要是为了发请求，服务端更新用户主题选择
+      ElMessage.success("切换成功！");
+      // 主要是为了发请求，服务端更新用户主题选择 后面肯定是发请求的
+      localStorage.setItem("userTheme", this.themeNow);
       this.isShowChangeTheme = false;
     },
     scrollDown(){
@@ -378,10 +315,19 @@ export default {
       this.$refs["message-box"].style.transform = `translateY(${200-((scrollTop/(scrollHeight-clientHeight)).toFixed(2)*200)}px)`;
       this.$refs["chat-room"].style.transform = `translateY(${200-((scrollTop/(scrollHeight-clientHeight)).toFixed(2)*200)}px)`;
     },
+    toMeCenter(){
+      window.open(`me/${this.userId}`, "_blank"); // 打开新页面进行跳转
+    },
+    joinIn(id){
+      window.open(`/chatroom/${id}`, "_blank");
+    },
+    toManage(){
+      window.open(`/manage`, "_blank");
+    },
   },
   mounted(){
     this.themeList[this.userTheme-1].isSelected = true;
-    this.setCssVarible(this.userTheme);
+    setCssVarible(this.userTheme, this);
     window.addEventListener("scroll", this.handleScroll);
   },
   beforeUnmount(){
@@ -402,7 +348,7 @@ export default {
     position: absolute;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, .5);
+    background-color: var(--menu-container-bgc);
     z-index: 100;
   }
   .index-container{
@@ -414,7 +360,7 @@ export default {
   .welcome-page{
     height: 100%;
     width: 100%;
-    background-image: url("./media/2.jpg");
+    background-image: url("./media/1.jpg");
     background-size: 100% 100%;
     background-repeat: no-repeat;
     overflow: hidden;
@@ -486,6 +432,10 @@ export default {
     font-size: 26px;
     cursor: pointer;
     color: var(--text-color);
+  }
+
+  .menu-close-btn:hover{
+    animation: rorate .8s ease-out 1;
   }
 
   .user-avatar{

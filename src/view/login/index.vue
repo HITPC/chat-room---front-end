@@ -78,6 +78,7 @@ export default {
       localStorage.setItem("userId", 1);
       localStorage.setItem("userTheme", 1);
       localStorage.setItem("userVIP", 1);
+      localStorage.setItem("userType", 'admin');
       this.$router.push("/index");
     },
     reverse(toWhere) {

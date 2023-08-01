@@ -8,6 +8,7 @@ export default function setCssVarible(index, that){
       document.documentElement.style.setProperty('--border-color', 'rgb(66,75,70)');
       document.documentElement.style.setProperty('--text-border-color', 'rgb(255,255,255)');
       document.documentElement.style.setProperty('--text-color-placeholder', 'rgba(239,232,215,.6)');
+      document.documentElement.style.setProperty('--menu-change-color', '#fff');
       break;
     }
     case 2: {
@@ -17,6 +18,7 @@ export default function setCssVarible(index, that){
       document.documentElement.style.setProperty('--border-color', 'rgb(240,228,234)');
       document.documentElement.style.setProperty('--text-border-color', 'rgb(255,255,255)');
       document.documentElement.style.setProperty('--text-color-placeholder', 'rgba(93,146,196,.6)');
+      document.documentElement.style.setProperty('--menu-change-color', '#fff');
       break;
     }
     case 3: {
@@ -26,6 +28,7 @@ export default function setCssVarible(index, that){
       document.documentElement.style.setProperty('--border-color', 'rgb(110,73,89)');
       document.documentElement.style.setProperty('--text-border-color', 'rgb(255,255,255)');
       document.documentElement.style.setProperty('--text-color-placeholder', 'rgba(247,187,184,.6)');
+      document.documentElement.style.setProperty('--menu-change-color', '#fff');
       break;
     }
     case 4: {
@@ -35,6 +38,7 @@ export default function setCssVarible(index, that){
       document.documentElement.style.setProperty('--border-color', 'rgb(24,43,73)');
       document.documentElement.style.setProperty('--text-border-color', 'rgb(255,255,255)');
       document.documentElement.style.setProperty('--text-color-placeholder', 'rgba(211,206,110,.6)');
+      document.documentElement.style.setProperty('--menu-change-color', '#fff');
       break;
     }
     case 5: {
@@ -44,6 +48,7 @@ export default function setCssVarible(index, that){
       document.documentElement.style.setProperty('--border-color', 'rgb(240,196,219)');
       document.documentElement.style.setProperty('--text-border-color', 'rgb(0,0,0)');
       document.documentElement.style.setProperty('--text-color-placeholder', 'rgba(255,249,249,.6)');
+      document.documentElement.style.setProperty('--menu-change-color', '#fff');
       break;
     }
     case 6: {
@@ -53,6 +58,7 @@ export default function setCssVarible(index, that){
       document.documentElement.style.setProperty('--border-color', 'rgb(57,55,69)');
       document.documentElement.style.setProperty('--text-border-color', 'rgb(188,128,216)');
       document.documentElement.style.setProperty('--text-color-placeholder', 'rgba(155,213,207,.6)');
+      document.documentElement.style.setProperty('--menu-change-color', '#fff');
       break;
     }
     case 7: {
@@ -62,6 +68,7 @@ export default function setCssVarible(index, that){
       document.documentElement.style.setProperty('--border-color', 'rgb(63,71,84)');
       document.documentElement.style.setProperty('--text-border-color', 'gray');
       document.documentElement.style.setProperty('--text-color-placeholder', 'rgba(136,197,131,.6)');
+      document.documentElement.style.setProperty('--menu-change-color', '#fff');
       break;
     }
     case 8: {
@@ -71,6 +78,7 @@ export default function setCssVarible(index, that){
       document.documentElement.style.setProperty('--border-color', 'rgb(255,255,255)');
       document.documentElement.style.setProperty('--text-border-color', 'rgb(255,255,255)');
       document.documentElement.style.setProperty('--text-color-placeholder', 'rgba(194,93,69,.6)');
+      document.documentElement.style.setProperty('--menu-change-color', 'black');
       break;
     }
     case 9: {
@@ -80,6 +88,7 @@ export default function setCssVarible(index, that){
       document.documentElement.style.setProperty('--border-color', 'rgb(16,70,97)');
       document.documentElement.style.setProperty('--text-border-color', 'gray');
       document.documentElement.style.setProperty('--text-color-placeholder', 'rgba(144, 184, 193,.6)');
+      document.documentElement.style.setProperty('--menu-change-color', '#fff');
       break;
     }
   }

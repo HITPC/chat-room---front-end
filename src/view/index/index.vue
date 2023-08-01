@@ -3,7 +3,7 @@
   <div class="index-container">
     <div class="welcome-page" ref="main">
       <div class="menu" @click="showMenu" ref="menu-button">
-        <el-icon color="white"><Expand /></el-icon>
+        <el-icon class="icon-menu"><Expand /></el-icon>
         <span style="font-family: 'Bradley Hand ITC';">MENU</span>
       </div>
       <div class="menu-container" ref="menu-container">
@@ -42,7 +42,7 @@
         </div>
       </div>
       <div class="change-theme-btn" @click="changeTheme">
-        <el-icon color="white"><Switch /></el-icon>
+        <el-icon class="icon-change"><Switch /></el-icon>
         <span style="font-family: '方正姚体';">切换主题</span>
       </div>
       <div class="theme-container" v-show="isShowChangeTheme">
@@ -363,12 +363,16 @@ export default {
     height: 32px;
     top: 3%;
     left: 1%;
-    border: 1px solid hsla(0,0%,100%,.6);
+    border: 1px solid var(--menu-change-color);
     transition: all .2s;
     cursor: pointer;
     border-radius: 3px;
     animation: littleMove 3s linear infinite;
     z-index: 2;
+  }
+
+  .icon-menu{
+    color: var(--menu-change-color);
   }
 
   .menu-content{
@@ -390,7 +394,7 @@ export default {
 
   .menu span, .change-theme-btn span{
     padding: 5px;
-    color: white;
+    color: var(--menu-change-color);
     font-weight: 600;
   }
 
@@ -473,12 +477,16 @@ export default {
     height: 32px;
     top: 3%;
     right: 1%;
-    border: 1px solid hsla(0,0%,100%,.6);
+    border: 1px solid var(--menu-change-color);
     transition: all .2s;
     cursor: pointer;
     border-radius: 3px;
     animation: littleMove 3s linear infinite;
     z-index: 2;
+  }
+
+  .icon-change{
+    color: var(--menu-change-color);
   }
 
   .theme-container{

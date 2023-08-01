@@ -3,7 +3,7 @@
   <div class="real-container">
     <div class="chat-container">
       <div class="title">
-        {{ roomName }}
+        {{ roomName }} <span style="font-size: 22px; line-height: 32px;">房间创建者： {{ creator }}</span>
       </div>
       <div class="memeber-list">
         <div class="list-title">
@@ -146,6 +146,7 @@ export default {
         },
 
       ],
+      creator: "qwd", // 房间创建者
     }
   },
   components: {

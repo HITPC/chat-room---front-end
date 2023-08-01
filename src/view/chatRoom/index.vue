@@ -26,6 +26,20 @@
           <div class="message" :style="item.fromId === userId ? 'right: 9%;' : 'left: 9%;'">
             <div class="message-from">
               {{ item.fromId === userId ? '您' : item.fromName }}
+              <el-tooltip
+                class="box-item"
+                effect="light"
+                content=" (尊享服务专属标识) 尊享服务已开通。"
+                placement="right"
+                v-if="item.fromVIP"
+              >
+                <el-icon color="gold"
+                  size="18"
+                  style="position: relative; top: 2px;"
+                >
+                  <StarFilled />
+                </el-icon>
+              </el-tooltip>
             </div>
             <div class="message-time">
               {{ item.date }}
@@ -84,6 +98,7 @@ export default {
         {
           fromId: "1",
           fromName: "xx",
+          fromVIP: true,
           message: "xasdased",
           date: "xxxxx",
         },
@@ -91,37 +106,43 @@ export default {
           fromId: "3",
           fromName: "xx",
           message: "xasdased",
+          fromVIP: false,
           date: "xxxxx",
         },
         {
           fromId: "2",
           fromName: "xx",
           message: "xasdased",
+          fromVIP: false,
           date: "xxxxx",
         },
         {
-          fromId: "6",
+          fromId: "888",
           fromName: "xx",
           message: "xasdased",
+          fromVIP: false,
           date: "xxxxx",
         },
         {
-          fromId: "6",
+          fromId: "3456",
           fromName: "xx",
           message: "xasdased",
+          fromVIP: false,
           date: "xxxxx",
         },
         {
-          fromId: "6",
+          fromId: "23523",
           fromName: "xx",
           message: "xasdasedxasdasedxasdasedxasdasedxasdasedxasdasedxasdasedxasdasedxasdasedxasdasedxasdasedxasdasedxasdasedxasdasedxasdasedxasdasedxasdasedxasdasedxasdasedxasdasedxasdasedxasdasedxasdasedxasdasedxasdasedxasdasedxasdasedxasdasedxasdasedxasdasedxasdasedxasdased",
+          fromVIP: false,
           date: "xxxxx",
         },
         {
-          fromId: "6",
+          fromId: "45475",
           fromName: "xx",
           message: "xasdased",
           date: "xxxxx",
+          fromVIP: false,
         },
 
       ],
@@ -138,7 +159,7 @@ export default {
   },
   methods: {
     toCenter(item){
-      window.open(`me/${item.id}`, "_blank");
+      window.open(`/me/${item.id}`, "_blank");
     },
     sendMessage(){
 

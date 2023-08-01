@@ -25,7 +25,7 @@ const routes = [
   },
   {
     name: "chatroom",
-    path: "/chatroom/:id",
+    path: "/chatroom/:id/:name",
     meta: {title: "聊天室"},
     component : () => import("@/view/chatRoom")
   },

@@ -19,10 +19,15 @@
             <el-tooltip
               class="box-item"
               effect="light"
-              content="(尊享服务专属标识) 您的尊享服务已开通。"
+              :content="userVip ? '(尊享服务专属标识) 您的尊享服务已开通。' : '尊享服务未开通。'"
               placement="right"
             >
-              <el-icon color="gold" v-if="userVip" size="18"><StarFilled /></el-icon>
+              <el-icon :color="userVip ? 'gold' : 'var(--button-bgc)'"
+                size="18"
+                style="position: relative; top: 2px;"
+              >
+                <StarFilled />
+              </el-icon>
             </el-tooltip>
           </span>
           <button @click="toMeCenter">
@@ -64,7 +69,10 @@
   </div>
   <div class="index-content-container" ref="content-blow">
     <div class="box" ref="message-box">
-      <h2 class="message-box-title">留言板</h2>
+      <h2 class="message-box-title">
+        留言板
+        <el-icon class="refresh-btn" @click="refresh('message')"><Refresh /></el-icon>
+      </h2>
       <div class="message-container">
         <div class="meaasge-item" v-for="(item, index) in messageList" :key="index">
           <span class="message-username">{{ item.userName }}</span>
@@ -74,20 +82,32 @@
       </div>
       <div class="send-message">
         <textarea v-model="messageText" cols="50" rows="4" placeholder="说点什么？使用win+.组合键可以打开表情。"></textarea>
-        <button>留言</button>
+        <button @click="leaveMessage">留言</button>
       </div>
     </div>
     <div class="line" ref="line"></div>
     <div class="box" ref="chat-room">
-      <h2 class="message-box-title">聊天室列表</h2>
+      <h2 class="message-box-title">
+        聊天室列表
+        <el-icon class="refresh-btn" @click="refresh('chatRoom')"><Refresh /></el-icon>
+      </h2>
       <div class="message-container" style="height: 90%;">
         <div class="room-item" v-for="(item, index) in roomList" :key="index">
           <span class="chat-name">{{ item.name }}</span>
           <span class="chat-people">目前人数：{{ item.peopleNow }}/{{ item.peopleMax }}</span>
-          <button class="chat-join" @click="joinIn(item.id)">加入</button>
+          <button class="chat-join" @click="joinIn(item)">加入</button>
         </div>
       </div>
-      <button class="chat-create-btn">创建房间</button>
+      <button class="chat-create-btn" @click="createChatRoom">创建房间</button>
+    </div>
+  </div>
+  <div class="create-room-container" v-show="isShowRoom">
+    <div class="create-room-input-container">
+      <div>创建房间</div>
+      <input type="text" placeholder="请输入房间名" v-model="roomName">
+      <input type="text" placeholder="请输入房间密码(不输入就是不用)" v-model="roomPassword">
+      <button @click="doCreateRoom">创建</button>
+      <el-icon class="vip-close-btn" @click="closeCreate"><Close /></el-icon>
     </div>
   </div>
 </template>
@@ -96,6 +116,7 @@
 import "@/style/my-css.css";
 import setCssVarible from "../../untils/setCSS";
 import { ElMessage } from 'element-plus';
+import themeList from "@/data/themeList";
 
 export default {
   name: 'IndexPage',
@@ -110,80 +131,7 @@ export default {
       userType: localStorage.getItem("userType") === "admin",
       isShowChangeTheme: false,
       themeNow: Number.parseInt(localStorage.getItem("userTheme")),// 当前选中的主题
-      themeList: [
-        {
-          id: 1,
-          name: "泽地木屋",
-          url: require("./media/1.jpg"),
-          isSelected: false,
-          text: "深林独居，晨光初上",
-          needOutline: false
-        },
-        {
-          id: 2,
-          name: "云笼山原",
-          url: require("./media/2.jpg"),
-          isSelected: false,
-          text: "花遍村庄，水满陂塘。倚东风，云漫山旁",
-          needOutline: true
-        },
-        {
-          id: 3,
-          name: "风暴岛礁",
-          url: require("./media/3.jpg"),
-          isSelected: false,
-          text: "浪卷天地，云覆苍生",
-          needOutline: false
-        },
-        {
-          id: 4,
-          name: "孤舟明灯",
-          url: require("./media/4.jpg"),
-          isSelected: false,
-          text: "醉后不知天在水，满船清梦压星河",
-          needOutline: false
-        },
-        {
-          id: 5,
-          name: "归人见鹿",
-          url: require("./media/5.jpg"),
-          isSelected: false,
-          text: "柴门闻犬吠，风雪夜归人",
-          needOutline: true
-        },
-        {
-          id: 6,
-          name: "倒悬之都",
-          url: require("./media/6.jpg"),
-          isSelected: false,
-          text: "破碎霓虹争眼，举目前望忆昔，无人诉心悲",
-          needOutline: true
-        },
-        {
-          id: 7,
-          name: "遥指星火",
-          url: require("./media/7.jpg"),
-          isSelected: false,
-          text: "稻浪涌天边，繁星点点雨",
-          needOutline: true
-        },
-        {
-          id: 8,
-          name: "秋日弄弦",
-          url: require("./media/8.jpg"),
-          isSelected: false,
-          text: "半起秋风茶未凉，佳人为伴弄琴常",
-          needOutline: true
-        },
-        {
-          id: 9,
-          name: "松山晚曦",
-          url: require("./media/9.jpg"),
-          isSelected: false,
-          text: "缓瀑映晚曦，倦鸟归林低",
-          needOutline: true
-        },
-      ],
+      themeList: themeList,
       isShowBlack: false,
       messageList: [
         {
@@ -211,7 +159,7 @@ export default {
         },
         {
           id: 1,
-          name: "asasd",
+          name: "年后",
           peopleNow: 2,
           peopleMax: 5,
         },
@@ -242,6 +190,9 @@ export default {
 
       ],
       messageText: "",
+      roomName: "",
+      roomPassword: "",
+      isShowRoom: false,
     }
   },
   methods:{
@@ -277,6 +228,10 @@ export default {
       }, 500);
     },
     changeTheme(){// 打开选取主题页面
+      if(!this.userVip){
+        ElMessage.error("您未开通尊享服务，不能使用此服务，请去个人中心激活服务！");
+        return;
+      }
       this.isShowChangeTheme = true;
     },
     closeTheme(){ // 关闭选取主题页面
@@ -284,6 +239,10 @@ export default {
       ElMessage.warning("已取消保存。");
     },
     setTheme(item){
+      if(!this.userVip){
+        ElMessage.error("您未开通尊享服务，不能使用此服务，请去个人中心激活服务！");
+        return;
+      }
       // 根据主题设置颜色 
       this.themeList.forEach(item=>item.isSelected = false);
       this.themeList[item.id - 1].isSelected = true;
@@ -318,12 +277,41 @@ export default {
     toMeCenter(){
       window.open(`me/${this.userId}`, "_blank"); // 打开新页面进行跳转
     },
-    joinIn(id){
-      window.open(`/chatroom/${id}`, "_blank");
+    joinIn(item){
+      window.open(`/chatroom/${item.id}/${item.name}`, "_blank");
     },
     toManage(){
       window.open(`/manage`, "_blank");
     },
+    createChatRoom(){
+      if(!this.userVip){
+        ElMessage.error("您未开通尊享服务，不能使用此服务，请去个人中心激活服务！");
+        return;
+      }
+      this.isShowRoom = true;
+    },
+    doCreateRoom(){
+      if(!this.userVip){
+        ElMessage.error("您未开通尊享服务，不能使用此服务，请去个人中心激活服务！");
+        return;
+      }
+      // 此处发送请求
+      this.isShowRoom = false;
+    },
+    closeCreate(){
+      if(!this.userVip){
+        ElMessage.error("您未开通尊享服务，不能使用此服务，请去个人中心激活服务！");
+        return;
+      }
+      this.isShowRoom = false;
+    },
+    leaveMessage(){
+      // 应该发请求，然后重新获取列表
+
+    },
+    refresh(type){
+      console.log(type);
+    }
   },
   mounted(){
     this.themeList[this.userTheme-1].isSelected = true;
@@ -817,6 +805,98 @@ export default {
     border: none;
     outline: none;
     transition: all .2s;
+  }
+
+  .create-room-container{
+    position: absolute;
+    left: 0;
+    top: 100%;
+    width: 100%;
+    height: 100%;
+    background-color: var(--menu-container-bgc);
+    z-index: 99;
+  }
+
+  .create-room-input-container{
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    align-content: space-evenly;
+    width: 50%;
+    height: 80%;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    background-color: var(--button-bgc);
+    border-radius: 30px;
+  }
+
+  .create-room-input-container div{
+    width: 100%;
+    color: var(--text-color);
+    font-weight: 600;
+    font-size: 36px;
+    text-align: center;
+    font-family: '方正姚体';
+  }
+
+  .create-room-input-container input{
+    border: none;
+    border-bottom: 1px solid var(--text-color);
+    outline: none;
+    width: 60%;
+    height: 8%;
+    padding-left: 5px;
+    color: var(--text-color);
+    background-color: transparent;
+    transition: all .2s;
+  }
+
+  .create-room-input-container input:focus{
+    animation: width-widder .5s ease-out 1;
+  }
+
+  .create-room-input-container button{
+    width: 60%;
+    height: 8%;
+    border: none;
+    cursor: pointer;
+    background-color: var(--text-color);
+    color: var(--button-bgc);
+    border-radius: 15px;
+    transition: all .2s;
+  }
+
+  .create-room-input-container button:hover{
+    opacity: .6;
+  }
+
+  .vip-close-btn{
+    position: absolute;
+    right: 3%;
+    top: 2%;
+    font-size: 26px;
+    cursor: pointer;
+    color: var(--text-color);
+  }
+
+  .vip-close-btn:hover{
+    animation: rorate .8s ease-out 1;
+  }
+
+  .refresh-btn{
+    position: relative;
+    font-size: 22px;
+    top: 2px;
+    border: 1px solid var(--text-color);
+    border-radius: 5px;
+    cursor: pointer;
+  }
+
+  .refresh-btn svg:hover{
+    animation: rorate .8s ease-out 1;
   }
   
 </style>

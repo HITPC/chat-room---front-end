@@ -36,7 +36,7 @@
           <span>VIP：</span>
           <span>
             当前尊享服务未开通
-            <button @click="isShowVIP = true" v-if="inId === userId">激活服务</button>
+            <button @click="isShowVIP = true" v-if="whoseIndexId === userId">激活服务</button>
           </span>
         </div>
       </div>
@@ -45,7 +45,10 @@
   </div>
   <div class="index-content-container" ref="content-blow">
     <div class="box" ref="message-box">
-      <h2 class="message-box-title">To: {{ userName }} 的留言板</h2>
+      <h2 class="message-box-title">
+        To: {{ userName }} 的留言板
+        <el-icon class="refresh-btn" @click="refresh"><Refresh /></el-icon>
+      </h2>
       <div class="message-container">
         <div class="meaasge-item" v-for="(item, index) in messageList" :key="index">
           <span class="message-username">{{ item.userName }}</span>
@@ -72,63 +75,19 @@
 <script>
 import setCssVarible from "../../untils/setCSS";
 import "@/style/my-css.css";
+import themeList from "@/data/themeList";
 
 export default {
   name: 'MeCenter',
   props: {},
   data () {
     return {
+      // 这里的内容是需要依靠发送请求通过userid进行获取的
       userName: localStorage.getItem("userName"),
       userId: localStorage.getItem("userId"),
       userTheme: Number.parseInt(localStorage.getItem("userTheme")), // 用户数据库里存的主题
       userVip: localStorage.getItem("userVIP") === "1",
-      themeList: [
-        {
-          id: 1,
-          name: "泽地木屋",
-          url: require("../index/media/1.jpg"),
-        },
-        {
-          id: 2,
-          name: "云笼山原",
-          url: require("../index/media/2.jpg"),
-        },
-        {
-          id: 3,
-          name: "风暴岛礁",
-          url: require("../index/media/3.jpg"),
-        },
-        {
-          id: 4,
-          name: "孤舟明灯",
-          url: require("../index/media/4.jpg"),
-        },
-        {
-          id: 5,
-          name: "归人见鹿",
-          url: require("../index/media/5.jpg"),
-        },
-        {
-          id: 6,
-          name: "倒悬之都",
-          url: require("../index/media/6.jpg"),
-        },
-        {
-          id: 7,
-          name: "遥指星火",
-          url: require("../index/media/7.jpg"),
-        },
-        {
-          id: 8,
-          name: "秋日弄弦",
-          url: require("../index/media/8.jpg"),
-        },
-        {
-          id: 9,
-          name: "松山晚曦",
-          url: require("../index/media/9.jpg"),
-        },
-      ],
+      themeList: themeList,
       messageList: [
         {
           userName: "a",
@@ -147,7 +106,7 @@ export default {
         },
       ],
       isShowBlack: false,
-      inId: this.$route.params.id,
+      whoseIndexId: this.$route.params.id,
       isShowVIP: false,
       messageText: "",
       vipCode: "",
@@ -191,6 +150,10 @@ export default {
     closeVIP(){
       this.isShowVIP = false;
       this.vipCode = "";
+    },
+    refresh(){
+      // 刷新列表
+      // 使用whoseIndexId进行刷新
     },
   },
   created () {
@@ -509,6 +472,19 @@ export default {
   }
 
   .vip-close-btn:hover{
+    animation: rorate .8s ease-out 1;
+  }
+
+  .refresh-btn{
+    position: relative;
+    font-size: 22px;
+    top: 2px;
+    border: 1px solid var(--text-color);
+    border-radius: 5px;
+    cursor: pointer;
+  }
+
+  .refresh-btn svg:hover{
     animation: rorate .8s ease-out 1;
   }
 

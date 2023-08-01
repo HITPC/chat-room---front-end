@@ -21,7 +21,8 @@ body{
   --button-bgc: #fff; 
   --text-color: #fff;
   --border-color: #fff;
-  --text-border-color: #fff
+  --text-border-color: #fff;
+  --text-color-placeholder: #fff;
 }
 
 /* 滚动条整体部分 */

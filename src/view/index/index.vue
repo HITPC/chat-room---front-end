@@ -100,6 +100,23 @@
       </div>
       <button class="chat-create-btn" @click="createChatRoom">创建房间</button>
     </div>
+    <el-icon class="row-right" @click="showMemeberList">
+      <ArrowRightBold/>
+    </el-icon>
+    <div class="menu-container" ref="list-container">
+        <div class="menu-content" ref="list-content">
+          <el-icon class="menu-close-btn" @click="closeList"><Close /></el-icon>
+          <div class="memeber-list">
+            <div class="list-title">
+              成员列表
+            </div>
+            <div class="memeber-item" v-for="item in memberList" :key="item.id" @click="toCenter(item)">
+              <div class="avatar">{{ item.name.charAt(0) }}</div>
+              <span class="name">{{ item.name }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
   </div>
   <div class="create-room-container" v-show="isShowRoom">
     <div class="create-room-input-container">
@@ -110,6 +127,7 @@
       <el-icon class="vip-close-btn" @click="closeCreate"><Close /></el-icon>
     </div>
   </div>
+  
 </template>
 
 <script>
@@ -189,6 +207,20 @@ export default {
         },
 
       ],
+      memberList: [
+        {
+          id: "21",
+          name: "xxxx"
+        },
+        {
+          id: "21",
+          name: "xxxx"
+        },
+        {
+          id: "21",
+          name: "xxxx"
+        }
+      ],
       messageText: "",
       roomName: "",
       roomPassword: "",
@@ -205,6 +237,27 @@ export default {
       localStorage.removeItem("userVIP");
       localStorage.removeItem("userType");
       this.$router.push("/login");
+    },
+    showMemeberList(){  
+      if(this.$refs["list-container"].classList.contains("menu-close")){
+        this.$refs["list-container"].classList.remove("menu-close");
+      }
+      this.$refs["menu-button"].style.opacity = 0;
+      this.$refs["list-content"].style.opacity = 0;
+      this.$refs["list-container"].classList.add("menu-show");
+      setTimeout(()=>{
+        this.$refs["list-content"].style.opacity = 1;
+      }, 500);
+    },
+    closeList(){
+      if(this.$refs["list-container"].classList.contains("menu-show")){
+        this.$refs["list-container"].classList.remove("menu-show");
+      }
+      this.$refs["list-container"].classList.add("menu-close");
+      setTimeout(()=>{
+        this.$refs["menu-button"].style.opacity = 1;
+        this.$refs["list-content"].style.opacity = 0;
+      }, 500);
     },
     showMenu(){
       if(this.$refs["menu-container"].classList.contains("menu-close")){
@@ -226,6 +279,9 @@ export default {
         this.$refs["menu-button"].style.opacity = 1;
         this.$refs["menu-content"].style.opacity = 0;
       }, 500);
+    },
+    toCenter(item){
+      window.open(`/me/${item.id}`, "_blank");
     },
     changeTheme(){// 打开选取主题页面
       if(!this.userVip){
@@ -443,6 +499,69 @@ export default {
     background-color: var(--button-bgc);
   }
 
+  .memeber-list{
+    display: flex;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    height: 100%;
+    width: 100%;
+    overflow: auto;
+  }
+
+  .memeber-item{
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+    width: 100%;
+    height: 6%;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: all .2s;
+    overflow: auto;
+    color: var(--text-color);
+  }
+
+  .memeber-item::after{
+    content: "";
+    width: 80%;
+    position: absolute;
+    top: 95%;
+    border-bottom: 1px dashed var(--text-color);
+  }
+
+  .memeber-item:hover{
+    opacity: .6;
+  }
+
+  .list-title{
+    width: 100%;
+    font-weight: 600;
+    font-size: 32px;
+    font-family: '方正姚体';
+    color: var(--text-color);
+    text-align: center;
+    margin-bottom: 10px;
+    margin-top: 5px;
+  }
+
+  .avatar{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 31px;
+    width: 31px;
+    border-radius: 31px;
+    font-weight: 600;
+    background-color: var(--button-bgc);
+    user-select: none;
+  }
+
+  .name{
+    font-weight: 600;
+  } 
+
+
   .menu-container button{
     width: 60%;
     height: 5%;
@@ -601,6 +720,19 @@ export default {
     animation: arrow-down 2s linear infinite;
     cursor: pointer;
   }    
+  .row-right{
+    position: absolute;
+    color: var(--text-color);
+    font-size: 32px;
+    font-weight: 600;
+    bottom: 1%;
+    left: 1%;
+    cursor: pointer;
+    border: 1px solid var(--text-color);
+    border-radius: 32px;
+    transition: all .2s;
+    animation: arrow-right linear 3s  infinite;
+  }  
   .index-content-container{
     position: relative;
     display: flex;

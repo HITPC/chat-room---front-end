@@ -36,7 +36,7 @@
           <span>VIP：</span>
           <span>
             当前尊享服务未开通
-            <button @click="isShowVIP = true" v-if="whoseIndexId === userId">激活服务</button>
+            <button @click="isShowVIP = true" v-if="whoseIndexId === myUserId">激活服务</button>
           </span>
         </div>
       </div>
@@ -50,6 +50,7 @@
         <el-icon class="refresh-btn" @click="refresh"><Refresh /></el-icon>
       </h2>
       <div class="message-container">
+        <span v-if="messageList.length == 0" class="text">暂无留言！</span>
         <div class="meaasge-item" v-for="(item, index) in messageList" :key="index">
           <span class="message-username">{{ item.userName }}</span>
           <span class="message-message">{{ item.message }}</span>
@@ -58,7 +59,7 @@
       </div>
       <div class="send-message">
         <textarea v-model="messageText" cols="50" rows="4" placeholder="说点什么？使用win+.组合键可以打开表情。"></textarea>
-        <button>留言</button>
+        <button @click="leaveMessage">留言</button>
       </div>
     </div>
   </div>
@@ -76,6 +77,9 @@
 import setCssVarible from "../../untils/setCSS";
 import "@/style/my-css.css";
 import themeList from "@/data/themeList";
+import { getUserData, getMyData, getUserMessageList, createUserMessage } from '@/API/getData';
+import { ElMessage } from 'element-plus';
+import { enableVIP } from '@/API/doOperations';
 
 export default {
   name: 'MeCenter',
@@ -83,28 +87,14 @@ export default {
   data () {
     return {
       // 这里的内容是需要依靠发送请求通过userid进行获取的
-      userName: localStorage.getItem("userName"),
-      userId: localStorage.getItem("userId"),
-      userTheme: Number.parseInt(localStorage.getItem("userTheme")), // 用户数据库里存的主题
-      userVip: localStorage.getItem("userVIP") === "1",
+      userName: "",
+      userId: "",
+      userTheme: 1, // 用户数据库里存的主题
+      userVip: false,
+      myUserName: "",
+      myUserId: "",
       themeList: themeList,
-      messageList: [
-        {
-          userName: "a",
-          message: "啊",
-          Date: "aaaaaaa",
-        },
-        {
-          userName: "aaaaa",
-          message: "aa",
-          Date: "aaaaa",
-        },
-        {
-          userName: "aaaaa",
-          message: "aa",
-          Date: "aaaaa",
-        },
-      ],
+      messageList: [],
       isShowBlack: false,
       whoseIndexId: this.$route.params.id,
       isShowVIP: false,
@@ -143,8 +133,33 @@ export default {
       this.$refs["message-box"].style.transform = `translateY(${200-((scrollTop/(scrollHeight-clientHeight)).toFixed(2)*200)}px)`;
     },
     vipOn(){
-      this.isShowVIP = false;
-      this.vipCode = "";
+      if(this.userVip){
+        ElMessage.error("已激活尊享服务！不可重复激活！");
+        return;
+      }
+      enableVIP({code: this.vipCode}).then((data)=>{
+        if(data.code == 202){
+          ElMessage.error("已激活尊享服务！不可重复激活！");
+          this.vipCode = "";
+          this.isShowVIP = false;
+          return;
+        }else if(data.code == 200){
+          ElMessage.success("激活成功！请刷新此页面和主页！");
+          this.vipCode = "";
+          this.isShowVIP = false;
+          return;
+        }else if(data.code == 203){
+          ElMessage.error("激活码错误！");
+          return;
+        }else if(data.code == 204){
+          ElMessage.error("被使用过的激活码！");
+          return;
+        }
+      }).catch((error)=>{
+        console.log(error);
+        ElMessage.error("激活失败！");
+        this.isShowVIP = false;
+      });
     },
     closeVIP(){
       this.isShowVIP = false;
@@ -153,13 +168,88 @@ export default {
     refresh(){
       // 刷新列表
       // 使用whoseIndexId进行刷新
+      this.getUserMessageList();
+    },
+    getMyData(){
+      getMyData().then((data)=>{
+        let item = data.data;
+        this.myUserId = item.id;
+        this.myUserName = item.username;
+      }).catch((error)=>{
+        console.log(error);
+        ElMessage.error("获取个人信息失败！");
+      });
+    },
+    getUserData(){
+      getUserData({id: this.whoseIndexId}).then((data)=>{
+        if(data.code == 200){
+          let item = data.data;
+          this.userId = item.id;
+          this.userName = item.username;
+          this.userTheme = item.userTheme;
+          this.userVip = item.userVIP;
+          setCssVarible(this.userTheme, this);
+        }
+      }).catch((error)=>{
+        console.log(error);
+        setCssVarible(this.userTheme, this);
+        ElMessage.error("拉取用户信息失败！");
+      });
+    },
+    getUserMessageList(){
+      getUserMessageList({belongToId: this.whoseIndexId}).then((data)=>{
+        if(data.code == 200){
+            data.data.forEach((item)=>{
+            if(!this.messageList.find(i => i.id === item._id)){
+              this.messageList.unshift({
+                id: item._id,
+                userName: item.userName,
+                Date: item.date,
+                message: item.message
+              });
+            }else if(this.messageList.length == 0){
+              this.messageList.push({
+                id: item._id,
+                userName: item.userName,
+                Date: item.date,
+                message: item.message
+              });
+            }
+          });
+        }
+      }).catch((error)=>{
+        console.log(error);
+        ElMessage.error("获取留言失败！");
+      });
+    },
+    leaveMessage(){
+      if(this.messageText === "" || this.messageText === " "){
+        ElMessage.error("内容不能为空！");
+        return;
+      }else{
+        createUserMessage({
+          belongToId: this.whoseIndexId,
+          message: this.messageText
+        }).then((data)=>{
+          if(data.code == 200){
+            ElMessage.success("留言成功！");
+            this.messageText = "";
+            this.getUserMessageList();
+          }
+        }).catch((error)=>{
+          console.log(error);
+          ElMessage.error("留言失败！");
+        });
+      }
     },
   },
   created () {
     
   },
   mounted () {
-    setCssVarible(this.userTheme, this);
+    this.getMyData();
+    this.getUserData();
+    this.getUserMessageList();
     window.addEventListener("scroll", this.handleScroll);
   },
   beforeUnmount(){
@@ -199,6 +289,16 @@ export default {
     height: 80%;
     background-color: var(--menu-container-bgc);
     border-radius: 30px;
+  }
+
+  .text{
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    font-weight: 600;
+    font-size: 30px;
+    color: var(--text-color);
   }
 
   .user-avatar{
@@ -290,6 +390,7 @@ export default {
   }
 
   .message-container{
+    position: relative;
     width: 100%;
     height: 70%;
     /* margin-left: 20%; */

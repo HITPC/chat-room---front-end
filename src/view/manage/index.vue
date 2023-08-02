@@ -29,45 +29,17 @@
 </template>
 
 <script>
+import { getVIPCode, getInviteCode } from '@/API/doOperations';
+import { getUserList } from '@/API/getData';
+import { ElMessage } from 'element-plus';
+import themeList from '@/data/themeList';
+
 export default {
   name: 'ManagePage',
   props: {},
   data () {
     return {
-      userList: [
-        {
-          id: 1,
-          name: "ss",
-          theme: "泽地木屋",
-          trueName: "ij",
-          isVIP: "是",
-          stop: "否",
-        },
-        {
-          id: 1,
-          name: "ss",
-          theme: "泽地木屋",
-          isVIP: "是",
-          trueName: "ij",
-          stop: "否",
-        },
-        {
-          id: 1,
-          name: "ss",
-          theme: "泽地木屋",
-          trueName: "ij",
-          isVIP: "是",
-          stop: "否",
-        },
-        {
-          id: 1,
-          name: "ss",
-          theme: "泽地木屋",
-          trueName: "ij",
-          isVIP: "是",
-          stop: "否",
-        },
-      ],
+      userList: [],
       inviteCode: "",
       vipCode: "",
       inviteTrueName: "",
@@ -85,22 +57,60 @@ export default {
   methods: {
     stop(row){
       console.log(row);
+      ElMessage.error("未开放此功能！");
     },
     noStop(row){
       console.log(row);
+      ElMessage.error("未开放此功能！");
     },
     getInviteCode(){
-      this.inviteCode = "asd";
+      getInviteCode({realName: this.inviteTrueName}).then((data)=>{
+        if(data.code == 200){
+          this.inviteCode = data.data;
+          ElMessage.success("获取成功！");
+        }else if(data.code == 204){
+          ElMessage.error("明文未注册！");
+        }else if(data.code == 208){
+          ElMessage.error("该明文已被使用！");
+        }
+      }).catch((error)=>{
+        console.log(error);
+        ElMessage.error("获取失败！");
+      });
     },
     getVIPCode(){
-      this.vipCode = "werf";
+      getVIPCode().then((data)=>{
+        this.vipCode = data.data;
+      }).catch((error)=>{
+        console.log(error);
+        ElMessage.error("获取失败！");
+      });
+    },
+    getUserList(){
+      getUserList().then((data)=>{
+        if(data.code == 200){
+          data.data.forEach((item)=>{
+            this.userList.push({  
+              id: item.id,
+              name: item.username,
+              theme: themeList[item.userTheme-1].name,
+              isVIP: item.userVIP?'是':'否',
+              trueName: item.userTrueName,
+              stop: "无",
+            });
+          });
+        }
+      }).catch((error)=>{
+        console.log(error);
+        ElMessage.error("获取用户列表失败!");
+      });
     },
   },
   created () {
     
   },
   mounted () {
-    
+    this.getUserList();
   },
 }
 </script>

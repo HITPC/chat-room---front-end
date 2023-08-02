@@ -16,11 +16,10 @@
             <el-tooltip
               class="box-item"
               effect="light"
-              content=" (尊享服务专属标识) 尊享服务已开通。"
+              :content="item.isVIP ? '(尊享服务专属标识) 尊享服务已开通。' : '尊享服务未开通' "
               placement="right"
-              v-if="item.isVIP"
             >
-              <el-icon color="gold"
+              <el-icon :color="item.isVIP ? 'gold' : 'var(--text-color)'"
                 size="18"
                 style="position: relative; top: 2px;"
               >

@@ -33,7 +33,7 @@
           <button @click="toMeCenter">
             个人中心
           </button>
-          <button @click="toManage" v-if="userType">
+          <button @click="toManage" v-if="userType==='admin'">
             管理网站
           </button>
           <button @click="unLogin">
@@ -74,6 +74,7 @@
         <el-icon class="refresh-btn" @click="refresh('message')"><Refresh /></el-icon>
       </h2>
       <div class="message-container">
+        <span v-if="messageList.length == 0" class="text">暂无留言！</span>
         <div class="meaasge-item" v-for="(item, index) in messageList" :key="index">
           <span class="message-username">{{ item.userName }}</span>
           <span class="message-message">{{ item.message }}</span>
@@ -92,6 +93,7 @@
         <el-icon class="refresh-btn" @click="refresh('chatRoom')"><Refresh /></el-icon>
       </h2>
       <div class="message-container" style="height: 90%;">
+        <span v-if="roomList.length == 0" class="text">暂无房间！</span>
         <div class="room-item" v-for="(item, index) in roomList" :key="index">
           <span class="chat-name">{{ item.name }}</span>
           <span class="chat-people">目前人数：{{ item.peopleNow }}/{{ item.peopleMax }}</span>
@@ -151,6 +153,8 @@ import "@/style/my-css.css";
 import setCssVarible from "../../untils/setCSS";
 import { ElMessage } from 'element-plus';
 import themeList from "@/data/themeList";
+import { getUserList, getMyData, getIndexMessageList, createIndexMessage } from "@/API/getData";
+import { changeTheme } from "@/API/doOperations";
 
 export default {
   name: 'IndexPage',
@@ -158,32 +162,16 @@ export default {
   data () {
     return {
       // 需要一个拿用户信息的接口 正确的！就用接口存着信息，然后通过cookie里面的内容解析出来id放到vuex里（这个在mounted这里做）不要用localstorage!  (记得后面个人中心 和 聊天室在对上接口之后也要改掉这里！)
-      userName: localStorage.getItem("userName"),
-      userId: localStorage.getItem("userId"),
-      userTheme: Number.parseInt(localStorage.getItem("userTheme")), // 用户数据库里存的主题
-      userVip: localStorage.getItem("userVIP") === "1",
-      userType: localStorage.getItem("userType") === "admin",
+      userName: "",
+      userId: "",
+      userTheme: 1, // 用户数据库里存的主题
+      userVip: false,
+      userType: "normal",
       isShowChangeTheme: false,
-      themeNow: Number.parseInt(localStorage.getItem("userTheme")),// 当前选中的主题
+      themeNow: 1,// 当前选中的主题
       themeList: themeList,
       isShowBlack: false,
-      messageList: [
-        {
-          userName: "a",
-          message: "啊",
-          Date: "aaaaaaa",
-        },
-        {
-          userName: "aaaaa",
-          message: "aa",
-          Date: "aaaaa",
-        },
-        {
-          userName: "aaaaa",
-          message: "aa",
-          Date: "aaaaa",
-        },
-      ],
+      messageList: [],
       roomList: [
         {
           id: 0,
@@ -223,23 +211,7 @@ export default {
         },
 
       ],
-      memberList: [
-        {
-          id: "21564",
-          name: "xxxx",
-          isVIP: false,
-        },
-        {
-          id: "24361",
-          name: "xwqdxxx",
-          isVIP: true,
-        },
-        {
-          id: "21574",
-          name: "xxxx",
-          isVIP: false,
-        }
-      ],
+      memberList: [],
       messageText: "",
       roomName: "",
       roomPassword: "",
@@ -248,13 +220,11 @@ export default {
   },
   methods:{
     unLogin(){ // 退出登录
-      // 仅为了开发使用
-      localStorage.removeItem("token");
-      localStorage.removeItem("userName");
-      localStorage.removeItem("userId");
-      localStorage.removeItem("userTheme");
-      localStorage.removeItem("userVIP");
-      localStorage.removeItem("userType");
+      // 删除cookie
+      document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"
+      document.cookie = "session_id=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"
+      ElMessage.success("退出登录成功！");
+      this.$store.commit("setToken", "");
       this.$router.push("/login");
     },
     showMemeberList(){  
@@ -308,6 +278,8 @@ export default {
         return;
       }
       this.isShowChangeTheme = true;
+      this.themeList.forEach(item=>item.isSelected = false);
+      this.themeList[this.themeNow - 1].isSelected = true;
     },
     closeTheme(){ // 关闭选取主题页面
       this.isShowChangeTheme = false;
@@ -325,9 +297,17 @@ export default {
       this.themeNow = item.id;
     },
     confirmTheme(){
-      ElMessage.success("切换成功！");
-      // 主要是为了发请求，服务端更新用户主题选择 后面肯定是发请求的
-      localStorage.setItem("userTheme", this.themeNow);
+      if(this.themeNow == this.userTheme){
+        ElMessage.success("切换成功！");
+      }else{
+        changeTheme({theme: this.themeNow}).then((data)=>{
+          if(data.code == 200){
+            ElMessage.success("切换成功！");
+          }
+        }).catch((error)=>{
+          console.log(error);
+        });
+      }
       this.isShowChangeTheme = false;
     },
     scrollDown(){
@@ -381,17 +361,91 @@ export default {
       this.isShowRoom = false;
     },
     leaveMessage(){
+      if(this.messageText === "" || this.messageText === " "){
+        ElMessage.error("内容不可为空！");
+        return;
+      }
       // 应该发请求，然后重新获取列表
-
+      createIndexMessage({
+        message: this.messageText
+      }).then((data)=>{
+        if(data.code == 200){
+          ElMessage.success("留言成功！");
+          this.refresh("chatRoom");
+          this.messageText = "";
+        }
+      }).catch((error)=>{
+        console.log(error);
+        ElMessage.error("留言失败！");
+      });
     },
     refresh(type){
-      console.log(type);
+      if(type === 'chatRoom'){
+        this.getIndexMessageList();
+      }
+    },
+    getUserList(){
+      getUserList().then((data)=>{
+        if(data.code == 200){
+          data.data.forEach((item)=>{
+            this.memberList.push({  
+              id: item.id,
+              name: item.username,
+              isVIP: item.userVIP
+            });
+          });
+        }
+      }).catch((error)=>{
+        console.log(error);
+        ElMessage.error("获取用户列表失败！");
+      });
+    },
+    getMyData(){
+      getMyData().then((data)=>{
+        let item = data.data;
+        this.userId = item.id;
+        this.userName = item.username;
+        this.userTheme = item.userTheme;
+        this.userVip = item.userVIP;
+        this.userType = item.userType;
+        this.themeNow = item.userTheme;
+        setCssVarible(this.userTheme, this);
+      }).catch((error)=>{
+        console.log(error);
+        setCssVarible(this.userTheme, this);
+        ElMessage.error("获取个人信息失败！");
+      });
+    },
+    getIndexMessageList(){
+      getIndexMessageList().then((data)=>{
+        data.data.forEach((item)=>{
+          if(!this.messageList.find(i => i.id === item._id)){
+            this.messageList.unshift({
+              id: item._id,
+              userName: item.userName,
+              Date: item.date,
+              message: item.message
+            });
+          }else if(this.messageList.length == 0){
+            this.messageList.push({
+              id: item._id,
+              userName: item.userName,
+              Date: item.date,
+              message: item.message
+            });
+          }
+        });
+      }).catch((error)=>{
+        console.log(error);
+        ElMessage.error("获取留言失败！");
+      });
     }
   },
   mounted(){
-    this.themeList[this.userTheme-1].isSelected = true;
-    setCssVarible(this.userTheme, this);
+    this.getMyData();
     window.addEventListener("scroll", this.handleScroll);
+    this.getUserList();
+    this.getIndexMessageList();
   },
   beforeUnmount(){
     window.removeEventListener("scroll", this.handleScroll);
@@ -427,6 +481,16 @@ export default {
     background-size: 100% 100%;
     background-repeat: no-repeat;
     overflow: hidden;
+  }
+
+  .text{
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    font-weight: 600;
+    font-size: 30px;
+    color: var(--text-color);
   }
 
   .menu{
@@ -791,6 +855,7 @@ export default {
   }
 
   .message-container{
+    position: relative;
     width: 100%;
     height: 70%;
     /* margin-left: 20%; */

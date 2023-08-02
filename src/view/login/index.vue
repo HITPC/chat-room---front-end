@@ -9,10 +9,10 @@
     </div>
     <div class="login-input-container hide" ref="register">
       <h1 class="login-title">注册</h1>
-      <input type="text" v-model="registerUsername" placeholder="请输入用户名(这以后就是你的昵称了)" class="input-underline-darkBG"/>
+      <input type="text" v-model="registerUsername" placeholder="请输入用户名(这以后就是你的昵称了，可以是中文)" class="input-underline-darkBG"/>
       <input type="password" v-model="registerPassword" placeholder="请输入密码" class="input-underline-darkBG"/>
       <input type="password" v-model="repeateRegisterPassword" placeholder="请再次输入密码" class="input-underline-darkBG"/>
-      <input type="password" v-model="inviteCode" placeholder="请输入邀请码" class="input-underline-darkBG"/>
+      <input type="text" v-model="inviteCode" placeholder="请输入邀请码" class="input-underline-darkBG"/>
       <button class="button-empty-large-dark" @click="doRegister">注册</button>
       <button class="button-empty-large-dark" @click="reverse('login')">去登录?</button>
     </div>
@@ -28,6 +28,7 @@ import { ElMessage } from 'element-plus';
 // import useUserStore from "../../store/useUserStore";
 // 导入my-css
 import "@/style/my-css.css";
+import { Login, Register } from "@/API/loginAndRegister";
 
 export default {
   name: 'LoginPage',
@@ -62,9 +63,25 @@ export default {
         return;
       }
       // 发网络请求
-      
-      ElMessage.success("注册成功！");
-      this.reverse("login");
+      Register({
+        username: this.registerUsername,
+        password: this.registerPassword,
+        inviteCode: this.inviteCode,
+      }).then((data)=>{
+        if(data.code == 200){
+          ElMessage.success("注册成功!");
+          this.reverse("login");
+        }else if(data.code == 201){
+          ElMessage.error("账户名已存在，请更换账户名！");
+        }else if(data.code == 205){
+          ElMessage.error("邀请码对应明文已被使用！");
+        }else if(data.code == 204){
+          ElMessage.error("邀请码错误！");
+        }
+      }).catch((error)=>{  
+        ElMessage.error("注册失败！");
+        console.log(error);
+      });  
     },
     doLogin() {
       if (this.username === "" || this.password === "") {
@@ -72,14 +89,21 @@ export default {
         return;
       }
       // 发送网络请求
-      // 跳转
-      localStorage.setItem("token", "1234"); // 仅开发时使用
-      localStorage.setItem("userName", this.username);
-      localStorage.setItem("userId", 1);
-      localStorage.setItem("userTheme", 1);
-      localStorage.setItem("userVIP", 1);
-      localStorage.setItem("userType", 'admin');
-      this.$router.push("/index");
+      Login({
+        username: this.username,
+        password: this.password
+      }).then((data)=>{
+        if(data.code == 200){
+          ElMessage.success("登录成功!");
+          this.$store.commit("setToken", data.data);
+          this.$router.push("/index");
+        }else if(data.code == 202){
+          ElMessage.error("账户名或密码错误！");
+        }
+      }).catch((error)=>{
+        console.log(error);
+        ElMessage.error("登录失败。");
+      });
     },
     reverse(toWhere) {
       this.isWait = true;

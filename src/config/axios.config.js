@@ -1,4 +1,5 @@
 import axios from "axios";
+import store from "@/store";
 
 let cookies = document.cookie;
 let temp = cookies.split(";");
@@ -14,7 +15,7 @@ temp.forEach((item)=>{
 });
 // 创建并配置一个新的axios
 const service = axios.create({
-    // baseURL: process.env.VUE_APP_BASE_API, // 这里指所有接口请求的“请求地址前缀”，完整请求地址 = 请求地址前缀 + 接口后缀，即 url = baseURL + request url
+    // baseURL: "http://127.0.0.1:3000", // 这里指所有接口请求的“请求地址前缀”，完整请求地址 = 请求地址前缀 + 接口后缀，即 url = baseURL + request url
     timeout: 60000, // 请求超时时间 毫秒
     withCredentials: true,   // 异步请求时是否携带cookie
     // headers: {   // 设置后端需要的传参类型，如果后端不要求，这没必要设置
@@ -34,7 +35,7 @@ service.interceptors.request.use(
         //     config.headers[tokenInfo.tokenName] = tokenInfo.tokenValue; //配置请求token
         // }
         // 配置请求头，以后每一个请求发出去都会携带请求头
-        const token = cookieObj.token || "";
+        const token = cookieObj.token || store.state.token;
         if(token !== ""){
             config.headers["token"] = token;
         }

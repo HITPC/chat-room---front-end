@@ -2,7 +2,7 @@ import { createRouter, createWebHistory } from "vue-router";
 import routes from "./routes";
 
 // 是不是还在开发中，开发中使用localstorage进行路由守卫
-let INDEV = true;
+let INDEV = false;
 
 const router = createRouter({
   history: createWebHistory(),

@@ -26,7 +26,7 @@
           <el-tooltip
             class="box-item"
             effect="light"
-            :content="`(尊享服务专属标识) 您的尊享服务已开通。到期时间：${vipEndDate}`"
+            :content="'(尊享服务专属标识) 您的尊享服务已开通。'"
             placement="right"
           >
             <el-icon color="gold" size="18"><StarFilled /></el-icon>
@@ -110,7 +110,6 @@ export default {
       isShowVIP: false,
       messageText: "",
       vipCode: "",
-      vipEndDate: "2023-12-22"
     }
   },
   components: {

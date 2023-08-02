@@ -112,7 +112,23 @@
             </div>
             <div class="memeber-item" v-for="item in memberList" :key="item.id" @click="toCenter(item)">
               <div class="avatar">{{ item.name.charAt(0) }}</div>
-              <span class="name">{{ item.name }}</span>
+              <span class="name">
+                {{ item.name }}
+                <el-tooltip
+                  class="box-item"
+                  effect="light"
+                  content=" (尊享服务专属标识) 尊享服务已开通。"
+                  placement="right"
+                  v-if="item.isVIP"
+                >
+                  <el-icon color="gold"
+                    size="18"
+                    style="position: relative; top: 2px;"
+                  >
+                    <StarFilled />
+                  </el-icon>
+                </el-tooltip>
+              </span>
             </div>
           </div>
         </div>
@@ -209,16 +225,19 @@ export default {
       ],
       memberList: [
         {
-          id: "21",
-          name: "xxxx"
+          id: "21564",
+          name: "xxxx",
+          isVIP: false,
         },
         {
-          id: "21",
-          name: "xxxx"
+          id: "24361",
+          name: "xwqdxxx",
+          isVIP: true,
         },
         {
-          id: "21",
-          name: "xxxx"
+          id: "21574",
+          name: "xxxx",
+          isVIP: false,
         }
       ],
       messageText: "",
@@ -551,6 +570,7 @@ export default {
     justify-content: center;
     height: 31px;
     width: 31px;
+    border: 1px solid var(--text-color);
     border-radius: 31px;
     font-weight: 600;
     background-color: var(--button-bgc);

@@ -2,14 +2,14 @@
   <div class="login-container" ref="container">
     <div class="login-input-container" ref="login">
       <h1 class="login-title">登录</h1>
-      <input type="text" v-model="username" placeholder="请输入用户名" class="input-underline-darkBG"/>
+      <input type="text" v-model="username" placeholder="请输入用户名(你的昵称)" class="input-underline-darkBG"/>
       <input type="password" v-model="password" placeholder="请输入密码" class="input-underline-darkBG"/>
       <button class="button-empty-large-dark" @click="doLogin">登录</button>
       <button class="button-empty-large-dark" @click="reverse('register')">去注册?</button>
     </div>
     <div class="login-input-container hide" ref="register">
       <h1 class="login-title">注册</h1>
-      <input type="text" v-model="registerUsername" placeholder="请输入用户名" class="input-underline-darkBG"/>
+      <input type="text" v-model="registerUsername" placeholder="请输入用户名(这以后就是你的昵称了)" class="input-underline-darkBG"/>
       <input type="password" v-model="registerPassword" placeholder="请输入密码" class="input-underline-darkBG"/>
       <input type="password" v-model="repeateRegisterPassword" placeholder="请再次输入密码" class="input-underline-darkBG"/>
       <input type="password" v-model="inviteCode" placeholder="请输入邀请码" class="input-underline-darkBG"/>

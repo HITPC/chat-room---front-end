@@ -9,8 +9,8 @@
     </div>
     <div class="login-input-container hide" ref="register">
       <h1 class="login-title">注册</h1>
-      <input type="text" v-model="registerUsername" placeholder="请输入用户名(这以后就是你的昵称了，可以是中文)" class="input-underline-darkBG"/>
-      <input type="password" v-model="registerPassword" placeholder="请输入密码" class="input-underline-darkBG"/>
+      <input type="text" v-model="registerUsername" placeholder="请输入用户名(这以后就是你的昵称了，可以是中文)(两位以上)" class="input-underline-darkBG"/>
+      <input type="password" v-model="registerPassword" placeholder="请输入密码(八位以上)" class="input-underline-darkBG"/>
       <input type="password" v-model="repeateRegisterPassword" placeholder="请再次输入密码" class="input-underline-darkBG"/>
       <input type="text" v-model="inviteCode" placeholder="请输入邀请码" class="input-underline-darkBG"/>
       <button class="button-empty-large-dark" @click="doRegister">注册</button>
@@ -52,6 +52,14 @@ export default {
     doRegister() {
       if (this.registerUsername === "" || this.registerPassword === "") {
         ElMessage.error("用户名或密码为空！");
+        return;
+      }
+      if(this.registerUsername === " "){
+        ElMessage.error("不能用空格！");
+        return;
+      }
+      if(this.registerUsername.length < 2 || this.registerPassword.length < 8){
+        ElMessage.error("用户名或密码长度错误！");
         return;
       }
       if (this.registerPassword !== this.repeateRegisterPassword) {

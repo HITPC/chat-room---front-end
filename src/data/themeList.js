@@ -44,7 +44,7 @@ export default [
     name: "倒悬之都",
     url: require("@/view/index/media/6.jpg"),
     isSelected: false,
-    text: "破碎霓虹争眼，举目前望忆昔，无人诉心悲",
+    text: "破碎霓虹争眼，孤寂人影无言",
     needOutline: true
   },
   {
@@ -67,6 +67,14 @@ export default [
     id: 9,
     name: "松山晚曦",
     url: require("@/view/index/media/9.jpg"),
+    isSelected: false,
+    text: "缓瀑映晚曦，倦鸟归林低",
+    needOutline: true
+  },
+  {
+    id: 10,
+    name: "远山与林",
+    url: require("@/view/index/media/10.jpg"),
     isSelected: false,
     text: "缓瀑映晚曦，倦鸟归林低",
     needOutline: true

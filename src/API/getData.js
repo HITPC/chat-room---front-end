@@ -61,3 +61,75 @@ export function createUserMessage(data) { //post用参数data
       data
   });
 }
+
+// 房间列表
+export function getRoomList(params) { //post用参数data
+  return request({
+      url: `${isDEV?'/api':''}/roomList`, //注意请求路径不要写全的 写成这样即可
+      method: "GET",
+      params
+  });
+}
+
+// 创建房间
+export function createRoom(data) { //post用参数data
+  return request({
+      url: `${isDEV?'/api':''}/createRoom`, //注意请求路径不要写全的 写成这样即可
+      method: "POST",
+      data
+  });
+}
+
+// 房间信息
+export function getRoomData(params) { //post用参数data
+  return request({
+      url: `${isDEV?'/api':''}/roomData`, //注意请求路径不要写全的 写成这样即可
+      method: "GET",
+      params
+  });
+}
+
+// 房间中人的列表
+export function getRoomUserList(params) { //post用参数data
+  return request({
+      url: `${isDEV?'/api':''}/roomUserList`, //注意请求路径不要写全的 写成这样即可
+      method: "GET",
+      params
+  });
+}
+
+// 房间中的消息列表
+export function getMessageList(params) { //post用参数data
+  return request({
+      url: `${isDEV?'/api':''}/messageList`, //注意请求路径不要写全的 写成这样即可
+      method: "GET",
+      params
+  });
+}
+
+// 发送消息
+export function sendMessage(data) { //post用参数data
+  return request({
+      url: `${isDEV?'/api':''}/sendMessage`, //注意请求路径不要写全的 写成这样即可
+      method: "POST",
+      data
+  });
+}
+
+// 进入房间
+export function inRoom(params) { //post用参数data
+  return request({
+      url: `${isDEV?'/api':''}/inRoom`, //注意请求路径不要写全的 写成这样即可
+      method: "GET",
+      params
+  });
+}
+
+// 离开房间
+export function leaveRoom(params) { //post用参数data
+  return request({
+      url: `${isDEV?'/api':''}/leaveRoom`, //注意请求路径不要写全的 写成这样即可
+      method: "GET",
+      params
+  });
+}

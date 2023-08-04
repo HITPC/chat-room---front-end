@@ -91,6 +91,16 @@ export default function setCssVarible(index, that){
       document.documentElement.style.setProperty('--menu-change-color', '#fff');
       break;
     }
+    case 10: {
+      document.documentElement.style.setProperty('--menu-container-bgc', 'rgba(0, 0, 0, .5)');
+      document.documentElement.style.setProperty('--button-bgc', 'rgb(24,44,47)');
+      document.documentElement.style.setProperty('--text-color', 'rgb(246,241,229)');
+      document.documentElement.style.setProperty('--border-color', 'rgb(24,44,47)');
+      document.documentElement.style.setProperty('--text-border-color', 'gray');
+      document.documentElement.style.setProperty('--text-color-placeholder', 'rgba(246,241,229,.6)');
+      document.documentElement.style.setProperty('--menu-change-color', 'rgb(224,218,190)');
+      break;
+    }
   }
   that.$refs["main"].style.backgroundImage = `url(${that.themeList[index-1].url})`;
 }

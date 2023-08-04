@@ -96,7 +96,7 @@
         <span v-if="roomList.length == 0" class="text">暂无房间！</span>
         <div class="room-item" v-for="(item, index) in roomList" :key="index">
           <span class="chat-name">{{ item.name }}</span>
-          <span class="chat-people">目前人数：{{ item.peopleNow }}/{{ item.peopleMax }}</span>
+          <span class="chat-people">目前人数：{{ item.peopleNow }}</span>
           <button class="chat-join" @click="joinIn(item)">加入</button>
         </div>
       </div>
@@ -140,7 +140,6 @@
     <div class="create-room-input-container">
       <div>创建房间</div>
       <input type="text" placeholder="请输入房间名" v-model="roomName">
-      <input type="text" placeholder="请输入房间密码(不输入就是不用)" v-model="roomPassword">
       <button @click="doCreateRoom">创建</button>
       <el-icon class="vip-close-btn" @click="closeCreate"><Close /></el-icon>
     </div>
@@ -153,7 +152,7 @@ import "@/style/my-css.css";
 import setCssVarible from "../../untils/setCSS";
 import { ElMessage } from 'element-plus';
 import themeList from "@/data/themeList";
-import { getUserList, getMyData, getIndexMessageList, createIndexMessage } from "@/API/getData";
+import { getUserList, getMyData, getIndexMessageList, createIndexMessage, getRoomList, createRoom, inRoom } from "@/API/getData";
 import { changeTheme } from "@/API/doOperations";
 
 export default {
@@ -172,49 +171,10 @@ export default {
       themeList: themeList,
       isShowBlack: false,
       messageList: [],
-      roomList: [
-        {
-          id: 0,
-          name: "asasd",
-          peopleNow: 2,
-          peopleMax: 5,
-        },
-        {
-          id: 1,
-          name: "年后",
-          peopleNow: 2,
-          peopleMax: 5,
-        },
-        {
-          id: 2,
-          name: "asasd",
-          peopleNow: 2,
-          peopleMax: 5,
-        },
-        {
-          id: 3,
-          name: "asasd",
-          peopleNow: 2,
-          peopleMax: 5,
-        },
-        {
-          id: 4,
-          name: "asasd",
-          peopleNow: 2,
-          peopleMax: 5,
-        },
-        {
-          id: 5,
-          name: "asasd",
-          peopleNow: 2,
-          peopleMax: 5,
-        },
-
-      ],
+      roomList: [],
       memberList: [],
       messageText: "",
       roomName: "",
-      roomPassword: "",
       isShowRoom: false,
     }
   },
@@ -277,6 +237,7 @@ export default {
         ElMessage.error("您未开通尊享服务，不能使用此服务，请去个人中心激活服务！");
         return;
       }
+      ElMessage.info("需要点击保存按钮方可保存改动！");
       this.isShowChangeTheme = true;
       this.themeList.forEach(item=>item.isSelected = false);
       this.themeList[this.themeNow - 1].isSelected = true;
@@ -333,7 +294,19 @@ export default {
       window.open(`me/${this.userId}`, "_blank"); // 打开新页面进行跳转
     },
     joinIn(item){
-      window.open(`/chatroom/${item.id}/${item.name}`, "_blank");
+      inRoom({roomId: item.id}).then((data)=>{
+        if(data.code == 200){
+          window.open(`/chatroom/${item.id}`, "_blank");
+        }else if(data.code == 204){
+          ElMessage.error("房间已销毁！");
+        }else{
+          console.log(data);
+          ElMessage.error("加入失败！");
+        }
+      }).catch((error)=>{
+        console.log(error);
+        ElMessage.error("加入失败！");
+      });
     },
     toManage(){
       window.open(`/manage`, "_blank");
@@ -351,6 +324,19 @@ export default {
         return;
       }
       // 此处发送请求
+      createRoom({roomName: this.roomName}).then((data)=>{
+        if(data.code == 210){
+          ElMessage.error("存在同名房间！");
+        }else if(data.code == 200){
+          ElMessage.success("创建成功！");
+          this.refresh("roomList");
+          this.joinIn({id: data.data.id});
+        }
+        
+      }).catch((error)=>{
+        console.log(error);
+        ElMessage.error("创建失败！");
+      });
       this.isShowRoom = false;
     },
     closeCreate(){
@@ -382,6 +368,8 @@ export default {
     refresh(type){
       if(type === 'chatRoom'){
         this.getIndexMessageList();
+      }else{
+        this.getRoomList();
       }
     },
     getUserList(){
@@ -439,13 +427,48 @@ export default {
         console.log(error);
         ElMessage.error("获取留言失败！");
       });
-    }
+    },
+    getRoomList(){
+      getRoomList().then((data)=>{
+        if(data.code == 200){
+          let temp;
+          data.data.forEach((item)=>{
+            if(this.roomList.length > data.data.length){
+              // 说明有房间被删掉了，需要置空
+              this.roomList = [];
+            }
+            temp = this.roomList.find(i => i.id === item.id);
+            if(!temp){
+              this.roomList.unshift({
+                id: item.id,
+                name: item.roomName,
+                peopleNow: item.roomPeopleNumber
+              });
+            }else if(temp){
+              if(temp.peopleNow != item.roomPeopleNumber){
+                temp.peopleNow = item.roomPeopleNumber;
+              }
+            }else if(this.roomList.length == 0){
+              this.roomList.push({
+                id: item.id,
+                name: item.roomName,
+                peopleNow: item.roomPeopleNumber
+              });
+            }
+          });
+        }
+      }).catch((error)=>{
+        console.log(error);
+        ElMessage.error("获取房间列表失败！");
+      });
+    },
   },
   mounted(){
     this.getMyData();
     window.addEventListener("scroll", this.handleScroll);
     this.getUserList();
     this.getIndexMessageList();
+    this.getRoomList();
   },
   beforeUnmount(){
     window.removeEventListener("scroll", this.handleScroll);

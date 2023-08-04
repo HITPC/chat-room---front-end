@@ -77,95 +77,29 @@
 import '@/style/my-css.css';
 import setCssVarible from '@/untils/setCSS';
 import themeList from '@/data/themeList';
+import { getMyData, getRoomData, getRoomUserList, getMessageList, sendMessage, leaveRoom } from '@/API/getData';
+import { ElMessage } from 'element-plus';
+// import websocket from '@/API/websocket'
 
 export default {
   name: 'ChatRoom',
   props: {},
   data () {
     return {
-      roomId: this.$route.params.id,
-      roomName: this.$route.params.name,
-      userName: localStorage.getItem("userName"),
-      userId: localStorage.getItem("userId"),
-      userTheme: Number.parseInt(localStorage.getItem("userTheme")), // 用户数据库里存的主题
-      userVip: localStorage.getItem("userVIP") === "1",
+      roomId: "",
+      roomName: "",
+      userName: "",
+      userId: "",
+      userTheme: 1, // 用户数据库里存的主题
+      userVip: false,
       themeList: themeList,
-      members: [
-        {
-          id: 1,
-          name: "xx",
-          isVIP: false,
-        },
-        {
-          id: 2,
-          name: "xx",
-          isVIP :true,
-        },
-        {
-          id: 3,
-          name: "xx",
-          isVIP: true,
-        },
-        {
-          id: 4,
-          name: "xx",
-          isVIP: false,
-        },
-      ],
+      members: [],
       messageToSend: "",
-      messageList: [
-        {
-          fromId: "1",
-          fromName: "xx",
-          fromVIP: true,
-          message: "xasdased",
-          date: "xxxxx",
-        },
-        {
-          fromId: "3",
-          fromName: "xx",
-          message: "xasdased",
-          fromVIP: false,
-          date: "xxxxx",
-        },
-        {
-          fromId: "2",
-          fromName: "xx",
-          message: "xasdased",
-          fromVIP: false,
-          date: "xxxxx",
-        },
-        {
-          fromId: "888",
-          fromName: "xx",
-          message: "xasdased",
-          fromVIP: false,
-          date: "xxxxx",
-        },
-        {
-          fromId: "3456",
-          fromName: "xx",
-          message: "xasdased",
-          fromVIP: false,
-          date: "xxxxx",
-        },
-        {
-          fromId: "23523",
-          fromName: "xx",
-          message: "xasdasedxasdasedxasdasedxasdasedxasdasedxasdasedxasdasedxasdasedxasdasedxasdasedxasdasedxasdasedxasdasedxasdasedxasdasedxasdasedxasdasedxasdasedxasdasedxasdasedxasdasedxasdasedxasdasedxasdasedxasdasedxasdasedxasdasedxasdasedxasdasedxasdasedxasdasedxasdased",
-          fromVIP: false,
-          date: "xxxxx",
-        },
-        {
-          fromId: "45475",
-          fromName: "xx",
-          message: "xasdased",
-          date: "xxxxx",
-          fromVIP: false,
-        },
-
-      ],
-      creator: "qwd", // 房间创建者
+      messageList: [],
+      creator: "", // 房间创建者
+      // socket: null,
+      timer1: null,
+      timer2: null,
     }
   },
   components: {
@@ -182,27 +116,149 @@ export default {
       window.open(`/me/${item.id}`, "_blank");
     },
     sendMessage(){
+      if(this.messageToSend === ""){
+        ElMessage.error("不能发送空消息！");
+        return;
+      }
+      // 向服务器发送消息
+      // if (this.socket) {
+      //   // this.socket.send(this.messageToSend);
+      //   this.socket.sendFn(this.messageToSend)
+      //   this.messageToSend = "";
+      // }
+      sendMessage({roomId: this.roomId, message: this.messageToSend}).then((data)=>{
+        if(data.code == 200){
+          ElMessage.success("发送成功！");
+          this.messageToSend = "";
+        }
+      }).catch((error)=>{
+        console.log(error);
+        ElMessage.error("消息发送失败！");
+      });
+    },
+    getRoomData(){
+      getRoomData({roomId: this.roomId}).then((data)=>{
+        this.roomName = data.data.roomName;
+        this.creator = data.data.creatorName;
+        document.title = "聊天室：" + this.roomName;
+      }).catch((error)=>{
+        console.log(error);
+        ElMessage.error("获取房间信息失败！");
+      });
+    },  
+    getMyData(){
+      getMyData().then((data)=>{
+        let item = data.data;
+        this.userId = item.id;
+        this.userName = item.username;
+        this.userTheme = item.userTheme;
+        this.userVip = item.userVIP;
+        setCssVarible(this.userTheme, this);
+      }).catch((error)=>{
+        console.log(error);
+        ElMessage.error("获取个人信息失败！");
+      });
+    },
+    getRoomUserList(){
+      getRoomUserList({roomId: this.roomId}).then((data)=>{
+        data.data.forEach((item)=>{
+          if(!this.members.find(i=>i.id === item.id)){
+            this.members.push({
+              id: item.id,
+              name: item.userName,
+              isVIP: item.userVIP
+            });
+          } 
+        });
+      }).catch((error)=>{
+        console.log(error);
+        ElMessage.error("获取用户列表失败！");
+      });
+    },  
+    getMessageList(){
+      getMessageList({roomId: this.roomId}).then((data)=>{
+        if(data.code == 200){
+          data.data.forEach((item)=>{
+            if(!this.messageList.find(i=>i.id === item.id)){
+              this.messageList.push({
+                id: item.id,
+                fromId: item.fromId,
+                fromName: item.fromName,
+                fromVIP: item.fromVIP,
+                message: item.message,
+                date: item.date,
+              })
+            }
+          });
+        }else{
+          console.log(data);
+          ElMessage.error("拉取消息列表失败！");
+        }
+      }).catch((error)=>{
+        console.log(error);
+        ElMessage.error("拉取消息列表失败！");
+      });
+    },
 
+    leaveRoom(){
+      leaveRoom({roomId: this.roomId}).then(()=>{}).catch((error)=>{console.log(error);});
     },
   },
   created () {
     
   },
   mounted () {
-    setCssVarible(this.userTheme, this);
-    document.title = "聊天室：" + this.roomName;
+    this.roomId = this.$route.params.id
+    this.getMyData();
+    this.getRoomData();
     // 开始的时候记得根据聊天室id获取members
-
+    this.getRoomUserList();
+    this.timer1 = setInterval(()=>{// 只能轮询了...  不知道为什么后端websocket连不起来...
+      this.getRoomUserList();
+    }, 1500);
+    this.getMessageList();
+    this.timer2 = setInterval(()=>{
+      this.getMessageList();
+    }, 800);
+    // this.socket = new WebSocket("ws://localhost:3000/submessage");
+    // // 监听连接打开事件
+    // this.socket.addEventListener('open', (event) => {
+    //   // 连接已打开
+    //   console.log('WebSocket connection opened:', event);
+    // });
+    // this.socket.onerror = (e) => {
+    //         console.error('连接错误', e)
+    // }
+    // // 监听消息事件
+    // this.socket.addEventListener('message', (event) => {
+    //   // 处理从服务器接收到的消息
+    //   console.log('Message from server:', event.data);
+    // });
+    // this.socket = new websocket("ws://localhost:3000/submessage");
+    // this.socket.createFn();
     // 绑定回车发消息
     window.addEventListener("keyup", (e) => {
       if(e.code === "Enter"){
         this.sendMessage();
       }
     });
+    window.onbeforeunload = (e)=>{
+      e.preventDefault();
+      alert("ok")
+      window.onkeyup = null;
+      // 关闭 WebSocket 连接
+      // if (this.socket) {
+      //   this.socket.close();
+      // }
+      // this.socket.closeFn();
+      clearInterval(this.timer1);
+      clearInterval(this.timer2);
+      this.leaveRoom();
+    }
   },
 
-  onUnmounted(){
-    window.onkeyup = null;
+  beforeUnmount(){
+    
   },
 }
 </script>

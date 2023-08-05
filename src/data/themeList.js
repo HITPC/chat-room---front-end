@@ -76,7 +76,7 @@ export default [
     name: "远山与林",
     url: require("@/view/index/media/10.jpg"),
     isSelected: false,
-    text: "缓瀑映晚曦，倦鸟归林低",
+    text: "雾霭笼空明，重山负层林",
     needOutline: true
   },
 ]

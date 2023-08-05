@@ -77,7 +77,7 @@
 import '@/style/my-css.css';
 import setCssVarible from '@/untils/setCSS';
 import themeList from '@/data/themeList';
-import { getMyData, getRoomData, getRoomUserList, getMessageList, sendMessage, leaveRoom } from '@/API/getData';
+import { getMyData, getRoomData, getRoomUserList, getMessageList, sendMessage } from '@/API/getData';
 import { ElMessage } from 'element-plus';
 // import websocket from '@/API/websocket'
 
@@ -200,22 +200,35 @@ export default {
       });
     },
 
-    leaveRoom(){
-      leaveRoom({roomId: this.roomId}).then(()=>{}).catch((error)=>{console.log(error);});
-    },
+    // leaveRoom(){
+    //   leaveRoom({roomId: this.roomId}).then(()=>{}).catch((error)=>{console.log(error);});
+    // },
+
+    // handleLeave(){
+    //   alert("ok")
+    //   window.onkeyup = null;
+    //   // 关闭 WebSocket 连接
+    //   // if (this.socket) {
+    //   //   this.socket.close();
+    //   // }
+    //   // this.socket.closeFn();
+    //   clearInterval(this.timer1);
+    //   clearInterval(this.timer2);
+    //   this.leaveRoom();
+    // },
   },
   created () {
     
   },
   mounted () {
-    this.roomId = this.$route.params.id
+    this.roomId = this.$route.params.id;
     this.getMyData();
     this.getRoomData();
     // 开始的时候记得根据聊天室id获取members
     this.getRoomUserList();
     this.timer1 = setInterval(()=>{// 只能轮询了...  不知道为什么后端websocket连不起来...
       this.getRoomUserList();
-    }, 1500);
+    }, 1600);
     this.getMessageList();
     this.timer2 = setInterval(()=>{
       this.getMessageList();
@@ -237,28 +250,24 @@ export default {
     // this.socket = new websocket("ws://localhost:3000/submessage");
     // this.socket.createFn();
     // 绑定回车发消息
-    window.addEventListener("keyup", (e) => {
-      if(e.code === "Enter"){
-        this.sendMessage();
-      }
-    });
-    window.onbeforeunload = (e)=>{
-      e.preventDefault();
-      alert("ok")
-      window.onkeyup = null;
-      // 关闭 WebSocket 连接
-      // if (this.socket) {
-      //   this.socket.close();
-      // }
-      // this.socket.closeFn();
-      clearInterval(this.timer1);
-      clearInterval(this.timer2);
-      this.leaveRoom();
-    }
+    // window.addEventListener("keyup", (e) => {
+    //   if(e.code === "Enter"){
+    //     this.sendMessage();
+    //   }
+    // });
+    // window.addEventListener('unload', this.handleLeave);
   },
 
   beforeUnmount(){
-    
+    // window.removeEventListener('unload', this.handleLeave);
+    // window.onkeyup = null;
+    // 关闭 WebSocket 连接
+    // if (this.socket) {
+    //   this.socket.close();
+    // }
+    // this.socket.closeFn();
+    clearInterval(this.timer1);
+    clearInterval(this.timer2);
   },
 }
 </script>
@@ -359,6 +368,8 @@ export default {
   }
 
   .avatar{
+    position: absolute;
+    left: 10%;
     display: flex;
     align-items: center;
     justify-content: center;

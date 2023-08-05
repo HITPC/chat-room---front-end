@@ -81,6 +81,7 @@ export default {
     getVIPCode(){
       getVIPCode().then((data)=>{
         this.vipCode = data.data;
+        ElMessage.success("获取成功！");
       }).catch((error)=>{
         console.log(error);
         ElMessage.error("获取失败！");

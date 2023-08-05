@@ -96,7 +96,7 @@
         <span v-if="roomList.length == 0" class="text">暂无房间！</span>
         <div class="room-item" v-for="(item, index) in roomList" :key="index">
           <span class="chat-name">{{ item.name }}</span>
-          <span class="chat-people">目前人数：{{ item.peopleNow }}</span>
+          <span class="chat-people">曾发言的人数：{{ item.peopleNow }}</span>
           <button class="chat-join" @click="joinIn(item)">加入</button>
         </div>
       </div>
@@ -388,8 +388,8 @@ export default {
         ElMessage.error("获取用户列表失败！");
       });
     },
-    getMyData(){
-      getMyData().then((data)=>{
+    async getMyData(){
+      await getMyData().then((data)=>{
         let item = data.data;
         this.userId = item.id;
         this.userName = item.username;
@@ -397,12 +397,11 @@ export default {
         this.userVip = item.userVIP;
         this.userType = item.userType;
         this.themeNow = item.userTheme;
-        setCssVarible(this.userTheme, this);
       }).catch((error)=>{
         console.log(error);
-        setCssVarible(this.userTheme, this);
         ElMessage.error("获取个人信息失败！");
       });
+      setCssVarible(this.userTheme, this);
     },
     getIndexMessageList(){
       getIndexMessageList().then((data)=>{
@@ -463,8 +462,8 @@ export default {
       });
     },
   },
-  mounted(){
-    this.getMyData();
+  async mounted(){
+    await this.getMyData();
     window.addEventListener("scroll", this.handleScroll);
     this.getUserList();
     this.getIndexMessageList();

@@ -91,20 +91,19 @@ export default {
         console.log(error);
       });  
     },
-    doLogin() {
+    async doLogin() {
       if (this.username === "" || this.password === "") {
         ElMessage.error("用户名或密码为空！");
         return;
       }
       // 发送网络请求
-      Login({
+      await Login({
         username: this.username,
         password: this.password
       }).then((data)=>{
         if(data.code == 200){
           ElMessage.success("登录成功!");
           this.$store.commit("setToken", data.data);
-          this.$router.push("/index");
         }else if(data.code == 202){
           ElMessage.error("账户名或密码错误！");
         }
@@ -112,6 +111,10 @@ export default {
         console.log(error);
         ElMessage.error("登录失败。");
       });
+      this.jump();
+    },
+    jump(){
+      this.$router.push("/index");
     },
     reverse(toWhere) {
       this.isWait = true;

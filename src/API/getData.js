@@ -125,11 +125,11 @@ export function inRoom(params) { //post用参数data
   });
 }
 
-// 离开房间
-export function leaveRoom(params) { //post用参数data
-  return request({
-      url: `${isDEV?'/api':''}/leaveRoom`, //注意请求路径不要写全的 写成这样即可
-      method: "GET",
-      params
-  });
-}
+// // 离开房间
+// export function leaveRoom(params) { //post用参数data
+//   return request({
+//       url: `${isDEV?'/api':''}/leaveRoom`, //注意请求路径不要写全的 写成这样即可
+//       method: "GET",
+//       params
+//   });
+// }

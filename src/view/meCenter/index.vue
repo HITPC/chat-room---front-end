@@ -138,6 +138,7 @@ export default {
         return;
       }
       enableVIP({code: this.vipCode}).then((data)=>{
+        console.log(data);
         if(data.code == 202){
           ElMessage.error("已激活尊享服务！不可重复激活！");
           this.vipCode = "";
@@ -151,7 +152,8 @@ export default {
         }else if(data.code == 203){
           ElMessage.error("激活码错误！");
           return;
-        }else if(data.code == 204){
+        }else if(data.code == 250){
+          console.log("Aaa");
           ElMessage.error("被使用过的激活码！");
           return;
         }

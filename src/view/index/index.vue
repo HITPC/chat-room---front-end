@@ -138,7 +138,7 @@
   <div class="create-room-container" v-show="isShowRoom">
     <div class="create-room-input-container">
       <div>创建房间</div>
-      <input type="text" placeholder="请输入房间名" v-model="roomName">
+      <input type="text" placeholder="请输入房间名" v-model="roomName" maxlength="10">
       <button @click="doCreateRoom">创建</button>
       <el-icon class="vip-close-btn" @click="closeCreate"><Close /></el-icon>
     </div>

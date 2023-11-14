@@ -1,5 +1,4 @@
 <template>
-  <div class="top" v-show="isShowBlack"></div>
   <div class="index-container">
     <div class="welcome-page" ref="main">
       <div class="menu" @click="showMenu" ref="menu-button">
@@ -169,7 +168,6 @@ export default {
       isShowChangeTheme: false,
       themeNow: 1,// 当前选中的主题
       themeList: themeList,
-      isShowBlack: false,
       messageList: [],
       roomList: [],
       memberList: [],
@@ -272,13 +270,9 @@ export default {
       this.isShowChangeTheme = false;
     },
     scrollDown(){
-        this.isShowBlack = true;
         setTimeout(()=>{
           this.$refs["content-blow"].scrollIntoView({behavior: 'smooth'});
-          setTimeout(()=>{
-            this.isShowBlack = false;
-          }, 600);
-        }, 300);
+        }, 100);
     },
     handleScroll(){
       var scrollTop = document.documentElement.scrollTop || document.body.scrollTop; // 已经读过被卷起来的文档部分
@@ -482,14 +476,6 @@ export default {
 
 
 <style scoped>
-
-  .top{
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    background-color: var(--menu-container-bgc);
-    z-index: 100;
-  }
   .index-container{
     position: relative;
     height: 100%;

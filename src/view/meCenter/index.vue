@@ -1,5 +1,4 @@
 <template>
-  <div class="top" v-show="isShowBlack"></div>
   <div class="me-container" ref="main">
     <div class="show-container">
       <div class="user-avatar">
@@ -95,7 +94,6 @@ export default {
       myUserId: "",
       themeList: themeList,
       messageList: [],
-      isShowBlack: false,
       whoseIndexId: this.$route.params.id,
       isShowVIP: false,
       messageText: "",
@@ -115,14 +113,10 @@ export default {
   },
   methods: {
     scrollDown(){
-      this.isShowBlack = true;
       if (this.isShowVIP) this.isShowVIP = false;
       setTimeout(()=>{
         this.$refs["content-blow"].scrollIntoView({behavior: 'smooth'});
-        setTimeout(()=>{
-          this.isShowBlack = false;
-        }, 600);
-      }, 300);
+      }, 100);
     },
     handleScroll(){
       if (this.isShowVIP) this.isShowVIP = false;
